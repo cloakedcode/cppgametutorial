@@ -1,0 +1,344 @@
+A basic C++ game tutorial to start from the ground up. 
+Outline:
+    -Introduction to classes (similar to Terror in ASCII Dungeon)
+        -Character class
+        -World class
+    -Introduction to game loops
+        -Make a basic game loop
+    -Introduction to variables
+        -Implement the variables in the character and world class
+        -Introduction to memory, dynamic memory, vectors and linked lists
+            -Cover pointers, references, and memory management?
+    -Introduction to functions
+        -Functions for math people
+        -Functions for non-math people
+        -Implement the character move
+        -Implement the character attack
+        -Implement the ai...but wait...our character shouldn't use AI... 
+    -Introduction to inheritence
+        -Separate the enemy and the character into two different classes
+        -But wait...that's a lot of the same code.  Inheritance!
+    -Introduction to AI
+        -Suuuuper simple path finding and attacking
+    -Key events
+        -Now our enemy is moving, but we can't.  Poll for key events!
+        -Call functions in our player when keys are pressed!
+    -Introduction to procedural generation
+        -The world is boring, let's fix that
+        -Add a tile class
+        -Make a really basic dungeon generation algorithm
+        -Use this as an introduction to algorithms in procedural generation
+            -Add a room class
+            -Generate a dungeon
+        -Brief discussion on what you want to procedurally generate, let the user
+         decide (make all the enemies or scale them up randomly based on dungeon level)
+
+    -That should cover:
+        Functions
+        Variables
+        Classes
+        Memory management
+        Inheritence
+        Game loops/loops in general
+        How a game basically works
+        Procedural Generation
+        Intro to Algorithms
+        Polling for key events
+        How to divvy up c++ code (headers and source)
+
+    -Cover game states
+        -loading screen
+        -game screen
+        -death screen
+
+    -Add a few things, like items, experience and levels
+    There you go!
+
+As I sit here in the family of my host house hoping that my host brother doesn't break my computer while I'm gone, I'll go ahead and start this.  So you want to learn c++.  Maybe you want to make a game.  Maybe your curious.  Maybe your friends are making you so you can help them code a roguelike and you need to get up to speed.  All good things.  Hopefully, this tutorial will help you along your way.  By the end you'll have a fully functional roguelike, and ideally a pretty good grasp on C++.  Hurray.  Let's get started.
+
+The first thing that we're going to do is plan out the different parts of the game, because if we don't it's super is to get confused and end up with really terrible code that doesn't quite work.  It will be a massive headache to maintain or add anything to.  You have been warned.
+
+We'll start this by thinking about what parts the game has.  Specifically, what do we want our roguelike to have?  All games need to have a main character, so that's a good starting point.  I'll call him dude.  Oh, and let's write these things down, so that we don't forget them. Grab a pencil and paper and go to town:
+
+Dude
+
+Yay.  What aspects should our character have?  Thinking about games, he's probably going to have health.  Let's call this one of his 'attributes.'  He also has a location.  So he should also have some coordinates, and the standard way to do that is x and y.
+
+Dude
+{
+    //attributes
+    health
+    x
+    y
+}
+
+I've denoted attributes with a //, just so we know that it isn't supposed to actually do anything.  For now, let's call that good on our Dude's description.  The next thing to think about it what we want our character to be able to do.  Again, as with most games, the most basic thing you can do is 'move.'  Let's jot that down.  But where do we want him to move?  Well...since he has coordinates, we probably want to move him to some coordinates.  Below, I've denoted where he's moving to inside ().  Let's list move, and lets put it under a fancy heading like we did with 'attributes.'  Let's call those 'methods.'  So, each thing in our game will have 'attributes,' which describe what the object is, and 'methods,' which describe what the object can do.
+
+Dude
+{
+    //attributes
+    health
+    x
+    y
+
+    //methods
+    move(x, y)
+}
+
+And our character should probably also be able to attack, or it wouldn't be a very interesting game.  So, go ahead and add attack.  What's he attacking?  Hopefully another character, although if you're making a weird game, I suppose it wouldn't have to be.
+
+
+Dude
+{
+    //attributes
+    health
+    x
+    y
+
+    //methods
+    move(x, y)
+    attack(character)
+}
+
+Awesome.  That's all we really need for a character for now.  And let's give our character something to fight.  An enemy will have...well, it'll have exactly the same things.  Location, health, and the ability to move and attack.
+
+Enemy
+{
+    //attributes
+    health
+    x
+    y
+
+    //methods
+    move(x, y)
+    attack(character)
+}
+
+Well that looks familiar.  You're probably sitting there wondering if there's some way that we could combine them, and you bet there is!  Because they're exactly the same, we can just tell them apart by a name.  Instead of having both a Character and an Enemy that are exactly the same, we can have a template to make all sorts of characters that have health, a location, and can move and attack!
+
+Character
+{
+    //attributes
+    name
+    health
+    x
+    y
+
+    //methods
+    move(x, y)
+    attack(character)
+}
+
+Splendid.  For now, that's enough planning for our character.  What else do we have in a game?  So far we have a main character, an enemy, but no where for them to be.  So, let's make a world for them to live in.  Jot that down:
+
+World
+
+What 'attributes' do we want our world to have?  Since we can't make our world infinite (...yet), let's give it a size.
+
+World
+{
+    //attributes
+    height
+    width
+}
+
+Anything else? Yes, there is!  Our world should also contain our Dude and our enemy as attributes, in the same way that my stomach also contains that oatmeal I just ate.  You could say that one of my attributes right now is that I have oatmeal in me.  In the same way, we can say that our world has the characters in them.
+
+World
+{
+    //attributes
+    height
+    width
+    Dude
+    Enemy
+}
+
+Does the world do anything?  Not really, it just kinds of sits there and keeps on spinning, so we'll leave that blank for now. So our code...I mean plan...so far looks like this:
+
+
+Character
+{
+    //attributes
+    name
+    health
+    x
+    y
+
+    //methods
+    move(x, y)
+    attack(character)
+}
+
+World
+{
+    //attributes
+    height
+    width
+    Dude
+    Enemy
+}
+
+Let's also write down what it is that our attributes are.  Are they numbers?  Are they lines of text?  In the character, let's look at the easiest one for now:  the health.  Pretty obvious, that should be a number, right?  Let's say it's an integer, or int for short, which are the counting numbers (1, 2, 3, 4...).  Hold on, you're syaing, don't we want to our character to be able to lose, say half a hitpoint?  The problem with this approach is that, in short, it's a mess.  You can easily end up with your character having 1.11111111296 health, which just seems messy, especially when you go to display how much health he has.  Let's call it an int.
+
+Character
+{
+    //attributes
+    name;
+    int health;
+    x;
+    y;
+    
+    //methods
+    move(x, y);
+    attack(character);
+}
+
+What else?  Well, there are his coordinates.  Those should be ints as well, as he can't be partially between two places.
+
+Character
+{
+    //attributes
+    name;
+    int health;
+    int x;
+    int y;
+
+    //methods
+    move(x, y);
+    attack(character);
+}
+
+There we go...wait, what's with the semicolons?  Well, they're to separate the lines.  Just in case, you know, the lines being separate weren't clear enough.  Okay, so the last attribute that we have to deal with is the name.  What should that be?  Normally you would think of a name like Tim or Steve, but what is a name, really?  It's a way to identify something.  How do we want to identify our stuff?  We could give them a name, like "Dude," or alternatively, we could have their name be the way that they're going to be shown in the game. Since it's an all ASCII game, that means that we'll have letters running around.  Maybe that should be our name...a single character.  Let's shorten that to char.
+
+Character
+{
+    //attributes
+    char name;
+    int health;
+    int x;
+    int y;
+
+    //methods
+    move(x, y);
+    attack(character);
+}
+
+Whew...getting closer.  Let's round it out for the methods as well, saying what type of things they need.
+
+Character
+{
+    //attributes
+    char name;
+    int health;
+    int x;
+    int y;
+
+    //methods
+    move(int x, int y);
+    attack(Character character);
+}
+
+But there's one more thing.  What if we were making a calculator?  It might have methods like add, subtract, multiply, etc., that would look like:
+
+Calculator
+{
+    //methods
+    add(int number1, int number2);
+    subtract(...)
+    ...
+}
+
+But what happens to the answer?!  If we say we want to add 2 and 3, where does the 5 go?  Well, it turns out that our methods often return a value back to us.  So our add method would look like this
+
+Calculator
+{
+    //methods
+    int add(int number1, int number2);
+}
+
+because when we add two integers, we expect an integer back as the answer.  There are two ways to think about this, really.  The first is for math oriented people.  Think about the function f(x) = 2x.  We give some value to the function, and we get a value out of it.  In  programming, functions are exactly the same.  We put some values in (number1 and number2), the function does something, and we get a value out.  
+
+The second way (the non mathy way) is to think of a method exactly like described above; it does something.  So, our attack function has our Dude attack another character.  Our Dude has a move function where he can move to another set of coordinates.  What if we want to know how it went?  Did our Dude attack successfully?  If we cared about that, we could have the method return a value to us letting us know how it went. 
+
+In C++, all methods have to say what they're returning, even if it's nothing.  The best way to think of that is to ask "Do we need anything back from that method?"  When we add, we need the answer back.  But when our character moves, do we care about getting anything back?  Nope, I really don't.  We'll call that void.  The same can be said with attack.  We could inquire as to how things went, but I don't particularly care if the character succeeded in moving.  So, we end up looking like this:
+
+Character
+{
+    //attributes
+    char name;
+    int health;
+    int x;
+    int y;
+
+    //methods
+    void move(int x, int y);
+    void attack(Character character);
+}
+
+Sweet, that's all we need to know about our characters.  What about the world?  Try it on your own.
+
+...
+
+...
+
+
+World
+{
+    //attributes
+    int height;
+    int width;
+    Character enemy;
+    Character dude;
+
+    //methods
+}
+
+Aight, we'll call that good for planning for now.  It looks pretty good to me!  Let's write some code. I'm going to operate under the assumption that you're using some Linux-esque distro which has the compiler gcc/g++, because that's what I'm using.  If you're on Windows, you'll have to figure a few things out on your own, but don't worry, there are plenty of great resources online.  If you have no idea what I'm talking about, you're probably on Windows.  If that's the case, then you need a compiler and an IDE, because Notepad won't cut it.  Go online and grab Codeblocks, Bloodshed dev-c++, or any other Windows C++ compiler/IDE you can find laying around.
+
+Anyway, with that Linux assumption.  Make a new directory where your program will live.  Call it whatever you want, game, roguelike, thingy, whatever.  It's up to you!  In that directory, make a file called "main.cpp" (without the quotes, of course).  In this file, place your code for the character.  What? I thought we were just planning things out?  Well, too bad.  We were writing bonafide code.
+
+However, a quick note.  Before the word Character, you should type class, like so, and end it with a ;.
+
+class Character
+{
+    //attributes
+    char name;
+    int health;
+    int x;
+    int y;
+
+    //methods
+    void move(int x, int y);
+    void attack(Character character);
+};
+
+Why?  I'll back up a bit.  In C++, our programs are primarily made out of objects.  Objects are pretty much everything; when you say int health, you just made an "int" object called health.  Your character will be an object, the world will be an object, but objects that you define instead of built in ones (like int and char).  So what exactly is an object?  Well, it contains information (like health, coordinates, etc.) and can do things (like move and attack).
+
+In order to create your own objects, we first must make a template for the object and tell our program what sort of stuff we want our object to have.  In the code above, we tell the program that we want to have an object called character that has the listed attributes and methods.  This will allow us to make Character objects whenever we want.  This is called a 'class.'  Now we have a character class.
+
+But this isn't a complete program yet.  Below the Character class, type the following:
+
+int main()
+{
+    return 0;
+}
+
+There we go, that's it.  But why in the blue blazes did we do that? What's main, and why is it returning 0?  It turns out that that's where our program starts.  When a C++ program starts, it looks for a method called main() and runs whatever is inside of that.  The reason that it's an int is because the computer wants to know if the program finished running successfully or not.  Think of a C++ program as running like this:
+
+1.  Look for the main() method.
+2.  Run whatever is inside the main() method.
+3.  Look at what value main returned.  If it's 0, everything went alright.  If it's not, we had a problem.
+
+If you followed this explanation, then you can see that our program is effectively doing nothing.  We're starting it up and then immediately saying "okay, everything went fine!"
+
+Let's test it out.  Close the file and type (if you're on Linux):
+
+g++ main.cpp -o main
+
+This should go fine.  It's called compiling, and it's what turns your pretty source code into a runnable program.  Now, if you check, you have a new thing in your folder called main!  Run it with:
+
+./main
+
+Nothing should happen!  Perfect. We'll call that the end of part 1 of this tutorial, moving on to part 2! 
+
+
